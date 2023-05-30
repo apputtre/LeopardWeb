@@ -3,21 +3,26 @@
 import sqlite3
 
 database = sqlite3.connect("assignment3.db")
-
 cursor = database.cursor() 
 
+cursor.execute("INSERT INTO STUDENT VALUES(10011, 'Yasmina', 'Habchi', 2024, 'BSCO', 'habchiy');")
+cursor.execute("INSERT INTO STUDENT VALUES(10012, 'Quang', 'Vu', 2024, 'BSCO', 'vuq1');")
+
+print("Admins:")
 cursor.execute("""SELECT * FROM ADMIN""")
 query_result = cursor.fetchall()
 
 for i in query_result:
     print(i)
 
+print("\nStudents")
 cursor.execute("""SELECT * FROM STUDENT""")
 query_result = cursor.fetchall()
 
 for i in query_result:
     print(i)
 
+print("\nInstructors:")
 cursor.execute("""SELECT * FROM INSTRUCTOR""")
 query_result = cursor.fetchall()
 
