@@ -8,7 +8,7 @@ cursor = database.cursor()
 cursor.execute("INSERT INTO STUDENT VALUES(10011, 'Yasmina', 'Habchi', 2024, 'BSCO', 'habchiy');")
 cursor.execute("INSERT INTO STUDENT VALUES(10012, 'Quang', 'Vu', 2024, 'BSCO', 'vuq1');")
 
-cursor.execute("DELETE FROM INSTRUCTOR WHERE id = 20002;")
+cursor.execute("DELETE FROM INSTRUCTOR WHERE id = 20003;")
 
 cursor.execute("UPDATE ADMIN SET title='Vice-President' WHERE id=30002;")
 
