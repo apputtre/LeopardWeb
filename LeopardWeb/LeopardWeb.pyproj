@@ -21,6 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="assignment3.py" />
     <Compile Include="LeopardWeb.py" />
     <Compile Include="python_sqlite_programmers.py" />
   </ItemGroup>
