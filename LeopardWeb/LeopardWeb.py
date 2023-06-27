@@ -1,6 +1,38 @@
 #test commit
 
-import assignment3
+import Database
+
+class CourseCatalog:
+    def __init__(self, dbcursor):
+        self.dbcursor = dbcursor
+
+    def add_course(self, course):
+        self.dbcursor
+
+    def remove_course(self, course):
+        self.courses.remove(course)
+
+    def get_courses(self):
+        return self.courses
+
+    def search_courses(self, query):
+        pass
+
+    def __db_insert_course(self, course):
+        self.dbcursor.execute(
+        f"""
+        INSERT INTO COURSES VALUES(
+            '{course.id}',
+            '{course.title}',
+            '{course.department}',
+            '{course.time}',
+            '{course.days}',
+            '{course.semester}',
+            '{course.year}',
+            '{course.credits}
+        );
+        """
+        )
 
 # Attributes: First, last name, ID
 class User:
@@ -18,31 +50,61 @@ class User:
     def ID(self):
         print("ID: ", self.WIT_ID)
 
-    def speak(self):
-        print("Goverment Name:", self.first_name, self.last_name)
-        print("My WIT ID is:", self.WIT_ID)
-
     def search_courses(self):
         print("Searching my courses...")
 
 
-class Course(User):
-    def __init__(self, name, max_students):
-        self.name = name
-        self.max_students = max_students    # Max students that can be enrolled
-        self.students = []                  # List of studnets 
+class Course():
+    class Section():
+        def __init__(self, num, capacity):
+            self.students = []
+            self.num = num
+            self.capacity = capacity
 
- # Students can add a course to their schedule but will have a max threshold.
-    def add_student(self, student):
-        if len(self.students) < self.max_students:
-            self.students.append(student)
-            return True
-        return False                        # If students exceed the threshold, it will return a false
+        def add_student(self, student):
+            if self.students.count() <= self.capacity:
+                self.students.append(student)
+                return True
+            else:
+                return False
 
+        def remove_student(self, student):
+            self.students.remove(student)
+
+    sections = [Section]
+
+    def __init__(self, id, title, department, time, days, semester, year, credits):
+        self.id = id
+        self.title = title
+        self.department = department
+        self.time = time
+        self.days = days
+        self.semester = semester
+        self.year = year
+        self.credits = credits
+
+    def add_section(self, capacity):
+        section_num = self.sections.count()
+        self.sections.append(self.Section(section_num, capacity))
+        return section_num
+
+    def get_sections(self):
+        section_nums = []
+        for s in self.sections:
+            section_nums.append(s.num)
+        return section_nums
+
+    def add_student(self, student, section=0):
+        if section in self.get_sections():
+            self.sections[section].add_student(student)
+
+    def remove_student(self, student, section=0):
+        if student in self.sections[section]:
+            self.sections[section].remove_student(student)
 
 class Instructor(User):
-    def __init__(self, first_name):
-        self.first_name = first_name
+    def __init__(self, first_name, last_name):
+        super().__init__(self, first_name, last_name)
         self.course_list = []               # Will list the # of courses
 
     def add_course(self, course):
@@ -94,10 +156,6 @@ class Admin(User):
             print(student.first_name, student.last_name, "| WIT_ID:", student.WIT_ID)
         print ("\n")  
 
-
-
-
-
 # What if I want 100+ students
 S1 = User("Quang", "Vu.", "W00000")
 S2 = User("Alex", "Puttre.", "W00001")
@@ -114,7 +172,7 @@ print()
 course1 = Course("Applied Programming Concepts", 3) # 3 stands for max threshold
 
 # Instructure1 is the name for the professor when you call it. 
-instructor1 = Instructor("Rawlins")
+instructor1 = Instructor("Marisha", "Rawlins")
 
 # Adding professor to a "course1"
 instructor1.add_course(course1)
