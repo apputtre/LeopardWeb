@@ -156,3 +156,78 @@ admin.remove_user_course(S1, course1)
 
 # How to put a txt or .db file
 ##
+
+## Yasmina: Login - Logout && Menu to implement changes
+
+check = 0
+
+while check != 1:
+    print("\nChoose from the following options:\n1- Login Admin\n2- Login Instructor\n3- Login Student\n")
+    choice = int(input("Enter here: "))
+
+    if choice == 1:
+        firstname = input("Enter admin's first name: ")
+        lastname = input("Enter admin's last name: ")
+        WIT_ID = int(input("Enter admin's ID: "))
+        password = input("Enter password: ")
+
+        person1 = Admin(firstname, lastname, WIT_ID)
+
+        print("1- OPTION 1\n 2- OPTION 2\n 3- OPTION 3...")
+        adminchoice = int(input("Enter a number: "))
+
+        if adminchoice == 1:
+            print("OPTION 1")
+        elif adminchoice == 2:
+            print("OPTION 2")
+        elif adminchoice == 3:
+            print("OPTION 3")
+
+        check = 0
+
+    elif choice == 2:
+        firstname = input("Enter instructor's first name: ")
+        lastname = input("Enter instructor's last name: ")
+        WIT_ID = int(input("Enter instructor's ID: "))
+
+        person1 = Instructor(firstname, lastname, WIT_ID)
+        
+        print("1- OPTION 1\n 2- OPTION 2\n 3- OPTION 3...")
+        instructorchoice = int(input("Enter a number: "))
+
+        if instructorchoice == 1:
+            print("OPTION 1")
+        elif instructorchoice == 2:
+            print("OPTION 2")
+        elif instructorchoice == 3:
+            print("OPTION 3")
+
+        check = 0
+        
+
+    elif choice == 3:
+        firstname = input("Enter student's first name: ")
+        lastname = input("Enter student's last name: ")
+        WIT_ID = int(input("Enter student's ID: "))
+
+        person1 = User(firstname, lastname, WIT_ID)
+        
+        print("1- OPTION 1\n 2- OPTION 2\n 3- OPTION 3...")
+        studentchoice = int(input("Enter a number: "))
+
+        if studentchoice == 1:
+            print("OPTION 1")
+        elif studentchoice == 2:
+            print("OPTION 2")
+        elif studentchoice == 3:
+            print("OPTION 3")
+
+        check = 0
+
+    else:
+        check = 1
+
+print("Error! Please select one of the following options: ")
+print("\nChoose from the following options:\n1- Login Admin\n2- Login Instructor\n3- Login Student\n")
+choice = int(input("Enter your choice: "))
+
