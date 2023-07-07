@@ -1,7 +1,9 @@
 #test commit
 
-import assignment3
+#import assignment3
 import sqlite3
+
+database = sqlite3.connect("assignment3.db")
 
 # Attributes: First, last name, ID
 class User:
@@ -159,54 +161,60 @@ admin.remove_user_course(S1, course1)
 ##
 
 ## Yasmina: Login - Logout && Menu to implement changes
-def check_database(username, id):
+def check_database(email, id):
     database = sqlite3.connect("assignment3.db")
     cursor = database.cursor()
 
-    query1 = "SELECT * FROM ADMIN WHERE username = ? AND id = ?"
-    cursor.execute(query1, (username, id))
+    query1 = f"SELECT * FROM ADMIN WHERE email = \'{email}\' AND ID = \'{id}\'"
+    cursor.execute(query1)
     query1_result = cursor.fetchone()
 
-    query2 = "SELECT * FROM INSTRUCTOR WHERE username = ? AND id = ?"
-    cursor.execute(query2, (username, id))
+    query2 = f"SELECT * FROM INSTRUCTOR WHERE email = \'{email}\' AND ID = \'{id}\'"
+    cursor.execute(query2)
     query2_result = cursor.fetchone()
 
-    query3 = "SELECT * FROM STUDENT WHERE username = ? AND id = ?"
-    cursor.execute(query3, (username, id))
+    query3 = f"SELECT * FROM STUDENT WHERE email = \'{email}\' AND ID = \'{id}\'"
+    cursor.execute(query3)
     query3_result = cursor.fetchone()
-
 
     database.close()
 
     if query1_result:
         print("Login as admin successful!")
+        return "admin"
 
     elif query2_result:
         print("Login as instructor successful!")
+        return "instructor"
 
     elif query3_result:
         print("Login as student successful!")
-
+        return "student"
     else:
         print("Login error!")
-        check = 1
-
-
+        return ""
 
 check = 0
-
 while check != 1:
-    print("Welcome! Login:\n \n")
+    print("\nWelcome! Login:\n \n")
     username = input("Username:\n")
     WIT_ID = int(input("WIT_ID: \n"))
     password = input("Password: \n")
 
-    if check_database(username,WIT_ID):
-        print("true")
+    user_type = check_database(username, WIT_ID)
 
+    if user_type == "student":
+        print("student menu")
+        check = 1
+    elif user_type == "admin":
+        print("admin menu")
+        check = 1
+    elif user_type == "instructor":
+        print("instructor menu")
+        check = 1
     else:
-        print("not")
-        
+         print("login error")
+         check = 0
 
 ''' check = 0
 
