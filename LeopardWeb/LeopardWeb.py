@@ -1,6 +1,7 @@
 #test commit
 
 import assignment3
+import sqlite3
 
 # Attributes: First, last name, ID
 class User:
@@ -158,8 +159,56 @@ admin.remove_user_course(S1, course1)
 ##
 
 ## Yasmina: Login - Logout && Menu to implement changes
+def check_database(username, id):
+    database = sqlite3.connect("assignment3.db")
+    cursor = database.cursor()
+
+    query1 = "SELECT * FROM ADMIN WHERE username = ? AND id = ?"
+    cursor.execute(query1, (username, id))
+    query1_result = cursor.fetchone()
+
+    query2 = "SELECT * FROM INSTRUCTOR WHERE username = ? AND id = ?"
+    cursor.execute(query2, (username, id))
+    query2_result = cursor.fetchone()
+
+    query3 = "SELECT * FROM STUDENT WHERE username = ? AND id = ?"
+    cursor.execute(query3, (username, id))
+    query3_result = cursor.fetchone()
+
+
+    database.close()
+
+    if query1_result:
+        print("Login as admin successful!")
+
+    elif query2_result:
+        print("Login as instructor successful!")
+
+    elif query3_result:
+        print("Login as student successful!")
+
+    else:
+        print("Login error!")
+        check = 1
+
+
 
 check = 0
+
+while check != 1:
+    print("Welcome! Login:\n \n")
+    username = input("Username:\n")
+    WIT_ID = int(input("WIT_ID: \n"))
+    password = input("Password: \n")
+
+    if check_database(username,WIT_ID):
+        print("true")
+
+    else:
+        print("not")
+        
+
+''' check = 0
 
 while check != 1:
     print("\nChoose from the following options:\n1- Login Admin\n2- Login Instructor\n3- Login Student\n")
@@ -230,4 +279,4 @@ while check != 1:
 print("Error! Please select one of the following options: ")
 print("\nChoose from the following options:\n1- Login Admin\n2- Login Instructor\n3- Login Student\n")
 choice = int(input("Enter your choice: "))
-
+'''
