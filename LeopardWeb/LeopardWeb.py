@@ -194,7 +194,28 @@ def check_database(email, id):
         print("Login error!")
         return ""
 
+
+def check_courses(course_id):
+    database = sqlite3.connect("assignment3.db")
+    cursor = database.cursor()
+
+    query4 = f"SELECT * FROM COURSES WHERE id = \'{course_id}\'"
+    cursor.execute(query4)
+    query4_result = cursor.fetchone()
+
+    if query4_result:
+        print("Course found!")
+        return "course_id"
+
+    else:
+        print("No course code available!")
+        return ""
+
+
+
+
 check = 0
+
 while check != 1:
     print("\nWelcome! Login:\n \n")
     username = input("Username:\n")
@@ -208,30 +229,46 @@ while check != 1:
         print("Choose one of the following options:\n")
         student_choice = int(input("\n1- Search all courses\n2- Add / Remove courses from semester schedule\n\n"))
         if student_choice == 1:
-            course_code = input("\nWhat is the course code you're searching for: \n")
+            course_id = input("\nWhat is the course code you're searching for: \n")
+            check_coursecode = check_courses(course_id)
+            if check_coursecode == "course_id":
+                print("COURSE: ")
+            else:
+                print("Error in course code!")
+            
+
         else:
-            print("\nError code!")
+            print("\nError!")
         check = 1
 
     elif user_type == "admin":
         print("---------Admin menu---------\n\n")
         print("Choose one of the following options:\n")
-        admin_choice = int(input("\n1- Search all courses\n2- Add /Remove courses from semester schedule\n\n"))
+        admin_choice = int(input("\n1- Search all courses\n2- Add /Remove courses from the system\n\n"))
         if admin_choice == 1:
-            course_code = input("\nWhat is the course code you're searching for: \n")
-
+             course_id = input("\nWhat is the course code you're searching for: \n")
+             check_coursecode = check_courses(course_id)
+             if check_coursecode == "course_id":
+                    print("COURSE: ")
+             else:
+                    print("Error in course code!")
         else:
-            print("\nError code!")
+            print("\nError!")
         check = 1
 
     elif user_type == "instructor":
         print("---------Instructor Options---------\n\n")
         print("Choose one of the following options:\n")
-        instructor_choice = int(input("\n1- Search all courses\n2- Add / Remove courses from semester schedule\n\n"))
+        instructor_choice = int(input("\n1- Search all courses\n2- Assemble and print course roster\n\n"))
         if instructor_choice == 1:
-            course_code = input("\nWhat is the course code you're searching for: \n")
+             course_id = input("\nWhat is the course code you're searching for: \n")
+             check_coursecode = check_courses(course_id)
+             if check_coursecode == "course_id":
+                print("COURSE: ")
+             else:
+                print("Error in course code!")
         else:
-            print("\nError code!")
+            print("\nError!")
         check = 1
 
     else:
