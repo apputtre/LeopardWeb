@@ -204,17 +204,44 @@ while check != 1:
     user_type = check_database(username, WIT_ID)
 
     if user_type == "student":
-        print("student menu")
+        print("----------Student Options-----------\n\n")
+        print("Choose one of the following options:\n")
+        student_choice = int(input("\n1- Search all courses\n2- Add / Remove courses from semester schedule\n\n"))
+        if student_choice == 1:
+            course_code = input("\nWhat is the course code you're searching for: \n")
+        else:
+            print("\nError code!")
         check = 1
+
     elif user_type == "admin":
-        print("admin menu")
+        print("---------Admin menu---------\n\n")
+        print("Choose one of the following options:\n")
+        admin_choice = int(input("\n1- Search all courses\n2- Add /Remove courses from semester schedule\n\n"))
+        if admin_choice == 1:
+            course_code = input("\nWhat is the course code you're searching for: \n")
+
+        else:
+            print("\nError code!")
         check = 1
+
     elif user_type == "instructor":
-        print("instructor menu")
+        print("---------Instructor Options---------\n\n")
+        print("Choose one of the following options:\n")
+        instructor_choice = int(input("\n1- Search all courses\n2- Add / Remove courses from semester schedule\n\n"))
+        if instructor_choice == 1:
+            course_code = input("\nWhat is the course code you're searching for: \n")
+        else:
+            print("\nError code!")
         check = 1
+
     else:
-         print("login error")
+         print("Login Error!")
          check = 0
+
+
+
+
+
 
 ''' check = 0
 
