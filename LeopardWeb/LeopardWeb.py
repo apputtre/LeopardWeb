@@ -43,6 +43,8 @@ class Course(User):
         return False                        # If students exceed the threshold, it will return a false
 
 
+
+
 class Instructor(User):
     def __init__(self, first_name):
         self.first_name = first_name
@@ -125,7 +127,6 @@ instructor1.add_course(course1)
 # Add students to a specific course
 course1.add_student(S1)
 course1.add_student(S2)
-course1.add_student(S4)
 course1.add_student(S3)
 
 
@@ -157,8 +158,6 @@ admin.remove_user_course(S1, course1)
 '''
 
 
-# How to put a txt or .db file
-##
 
 ## Yasmina: Login - Logout && Menu to implement changes
 def check_database(email, id):
@@ -277,7 +276,31 @@ while check != 1:
 
 
 
+    # Quang: Add/Remove courses based on course ID
+    def check_courses(course_id):
+        database = sqlite3.connect("assignment3.db")
+        cursor = database.cursor()
 
+    def add_course(self, course):
+        # Check if the course is already enrolled
+        if course in self.courses:
+            print("You are already enrolled in this course.")
+        else:
+            # Check if the course has available slots
+            if len(course.students) < course.max_students:
+                self.courses.append(course)
+                course.add_student(self)
+                print("Added course:", course.name)
+            else:
+                print("Course is full. Unable to enroll.")
+
+    def remove_course(self, course):
+        if course in self.courses:
+            self.courses.remove(course)
+            course.students.remove(self)
+            print("Removed course:", course.name)
+        else:
+            print("You are not enrolled in this course.")
 
 
 ''' check = 0
