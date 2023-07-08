@@ -1,12 +1,9 @@
 #test commit
 
 #import assignment3
-from ctypes import sizeof
 import sqlite3
-from typing import *
 
 database = sqlite3.connect("assignment3.db")
-curr_user = None
 
 # Attributes: First, last name, ID
 class User:
@@ -33,38 +30,10 @@ class User:
 
 
 class Course(User):
-    def __init__(self, id: str, title: str, department: str, time: str, days: str, semester: str, year: int, credits: int, max_students = 30):
-        self.id = id
-        self.title = title
-        self.department = department
-        self.time = time
-        self.days = days
-        self.semester = semester
-        self.year = year
-        self.credits = credits
+    def __init__(self, name, max_students):
+        self.name = name
         self.max_students = max_students    # Max students that can be enrolled
-
         self.students = []                  # List of studnets 
-
-    def from_search_result(search_result: str, max_students = 30):
-
-        return Course(
-                search_result[0],
-                search_result[1],
-                search_result[2],
-                search_result[3],
-                search_result[4],
-                search_result[5],
-                search_result[6],
-                search_result[7],
-                max_students
-                )
-
-    def __repr__(self):
-        return f"ID: {self.id}, title: {self.title}, department: {self.department}, time: {self.time}, days: {self.days}, semester: {self.semester}, year: {self.year}, credits: {self.credits}, max_students: {self.max_students}"
-
-    def __eq__(self, other):
-        return self.id == other.id
 
  # Students can add a course to their schedule but will have a max threshold.
     def add_student(self, student):
@@ -82,15 +51,10 @@ class Instructor(User):
     def add_course(self, course):
         self.course_list.append(course)
 
-    def remove_course(self, course):
-        self.course_list.remove(course)
-
     def print_courses(self):
-        if (len(self.course_list) > 0):
-            print("Prof.", self.first_name)
-            display_courses(self.course_list)
-        else:
-            print("Your course roster is empty\n")
+        print("Professor.", self.first_name)
+        for course in self.course_list:
+            print(course.name)
 
 
 class Admin(User):
@@ -99,33 +63,11 @@ class Admin(User):
         super().__init__(first_name, last_name, WIT_ID)
 
     def add_course(self, course):
-        database = sqlite3.connect("assignment3.db")
-        cursor = database.cursor()
-
-        cursor.execute(f"""INSERT INTO COURSES VALUES(
-                "{course.id}",
-                "{course.title}",
-                "{course.department}",
-                "{course.time}",
-                "{course.days}",
-                "{course.semester}",
-                {course.year},
-                {course.credits}
-            )
-           """
-        )
-
-        database.commit()
-        database.close()
+        #self.course_list.append(course)
+        print("Adding course:", course.name)
 
     def remove_course(self, course):
-        database = sqlite3.connect("assignment3.db")
-        cursor = database.cursor()
-
-        cursor.execute(f"DELETE FROM COURSES WHERE ID = '{course.id}'")
-
-        database.commit()
-        database.close()
+        print("Removing course:", course.name)
  
     def add_user_course(self, user, course):
         print("Student:", user.first_name, user.last_name, "has been added to:", course.name)
@@ -155,7 +97,9 @@ class Admin(User):
             print(student.first_name, student.last_name, "| WIT_ID:", student.WIT_ID)
         print ("\n")  
 
-"""
+
+
+
 
 # What if I want 100+ students
 S1 = User("Quang", "Vu.", "W00000")
@@ -250,245 +194,91 @@ def check_database(email, id):
         print("Login error!")
         return ""
 
-"""
 
-## Yasmina: Login - Logout && Menu to implement changes
-def check_database(email, id):
+def check_courses(course_id):
     database = sqlite3.connect("assignment3.db")
     cursor = database.cursor()
 
-    query1 = f"SELECT * FROM ADMIN WHERE email = \'{email}\' AND ID = \'{id}\'"
-    cursor.execute(query1)
-    query1_result = cursor.fetchone()
+    query4 = f"SELECT * FROM COURSES WHERE id = \'{course_id}\'"
+    cursor.execute(query4)
+    query4_result = cursor.fetchone()
 
-    query2 = f"SELECT * FROM INSTRUCTOR WHERE email = \'{email}\' AND ID = \'{id}\'"
-    cursor.execute(query2)
-    query2_result = cursor.fetchone()
+    if query4_result:
+        print("Course found!")
+        return "course_id"
 
-    query3 = f"SELECT * FROM STUDENT WHERE email = \'{email}\' AND ID = \'{id}\'"
-    cursor.execute(query3)
-    query3_result = cursor.fetchone()
-
-    database.close()
-
-    if query1_result:
-        return "admin"
-
-    elif query2_result:
-        return "instructor"
-
-    elif query3_result:
-        return "student"
     else:
+        print("No course code available!")
         return ""
 
-def search_courses(search_criterion: str, value: str) -> list:
-    database = sqlite3.connect("assignment3.db")
-    cursor = database.cursor()
-
-    search_criterion = search_criterion.upper()
-
-    query = ""
-
-    match search_criterion:
-        case "ID":
-            query = f"SELECT * FROM COURSES WHERE {search_criterion} = \'{value}\'"
-        case "TITLE":
-            query = f"SELECT * FROM COURSES WHERE {search_criterion} = \'{value}\'"
-        case "DEPARTMENT":
-            query = f"SELECT * FROM COURSES WHERE {search_criterion} = \'{value}\'"
-        case "TIME":
-            query = f"SELECT * FROM COURSES WHERE {search_criterion} = \'{value}\'"
-        case "DAYS":
-            query = f"SELECT * FROM COURSES WHERE {search_criterion} = \'{value}\'"
-        case "SEMESTER":
-            query = f"SELECT * FROM COURSES WHERE {search_criterion} = \'{value}\'"
-        case "YEAR":
-            query = f"SELECT * FROM COURSES WHERE {search_criterion} = {value}"
-        case "CREDITS":
-            query = f"SELECT * FROM COURSES WHERE {search_criterion} = {value}"
-        case _:
-            raise Exception("Invalid search criterion")
-
-    cursor.execute(query)
-    result = cursor.fetchall()
-
-    search_matches = []
-
-    for i in result:
-        search_matches.append(Course.from_search_result(i))
-
-    database.close()
-
-    return search_matches
-
-def display_courses(to_display = None):
-    database = sqlite3.connect("assignment3.db")
-    cursor = database.cursor()
-
-    courses = []
-    if to_display == None:
-        from_db = cursor.execute("SELECT * FROM COURSES")
-        for i in from_db:
-            courses.append(Course.from_search_result(i))
-    else:
-        courses = to_display
-
-    for course in courses:
-        print(course)
-
-    database.close()
-
-def search_courses_menu():
-    exit = 0
-    while exit == 0:
-        user_input = int(input("\nSelect which attribute you would like to search by:\n1- ID\n2- Title\n3- Department\n4- Time\n5- Days\n6- Semester\n7- Year\n8- Credits\n"))
-
-        if (user_input < 1 or user_input > 8):
-            print("Invalid input\n")
-        else:
-            exit = 1
-
-    search_criterion = ["ID", "TITLE", "DEPARTMENT", "TIME", "DAYS", "SEMESTER", "YEAR", "CREDITS"][user_input - 1]
-    search_value = input(f"\nSearch for courses with {search_criterion.lower()}: ")
-    search_results = search_courses(search_criterion, search_value)
-
-    num_results = len(search_results)
-    if(num_results > 0):
-        print(f"\nThere {'is' if num_results == 1 else 'are'} {num_results} {'course' if num_results == 1 else 'courses'} with {search_criterion.lower()} = {search_value}:\n")
-        display_courses(search_results)
-    else:
-        print(f"\nNo courses matching search criterion {search_criterion.lower()} = {search_value}")
 
 
-exit = False
-while not exit:
-    username = ""
-    user_type = ""
-    exit = False
-    while user_type == "":
-        print("\nWelcome! Login:\n \n")
-        username = input("Username:\n")
-        WIT_ID = int(input("WIT_ID: \n"))
-        password = input("Password: \n")
 
-        user_type = check_database(username, WIT_ID)
+check = 0
 
-        if user_type == "":
-            print("Error: user not found. Please try again\n")
-        else:
-            print(f"Logged in successfully as {user_type}!\n")
+while check != 1:
+    print("\nWelcome! Login:\n \n")
+    username = input("Username:\n")
+    WIT_ID = int(input("WIT_ID: \n"))
+    password = input("Password: \n")
+
+    user_type = check_database(username, WIT_ID)
 
     if user_type == "student":
         print("----------Student Options-----------\n\n")
-
-        while user_type != "":
-            print("Choose one of the following options:\n")
-            student_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add / Remove courses from semester schedule\n4- Display all courses\n\n"))
-            if student_choice == 1:
-                print(f"Goodbye {username}!\n")
-                user_type = ""
-            elif student_choice == 2:
-                search_courses_menu()
-            elif student_choice == 3:
-                print("to be implemented\n")
-            elif student_choice == 4:
-                display_courses()
+        print("Choose one of the following options:\n")
+        student_choice = int(input("\n1- Search all courses\n2- Add / Remove courses from semester schedule\n\n"))
+        if student_choice == 1:
+            course_id = input("\nWhat is the course code you're searching for: \n")
+            check_coursecode = check_courses(course_id)
+            if check_coursecode == "course_id":
+                print("COURSE: ")
             else:
-                print("Please choose from one of the displayed options\n")
+                print("Error in course code!")
+            
+
+        else:
+            print("\nError!")
+        check = 1
+
     elif user_type == "admin":
         print("---------Admin menu---------\n\n")
+        print("Choose one of the following options:\n")
+        admin_choice = int(input("\n1- Search all courses\n2- Add /Remove courses from the system\n\n"))
+        if admin_choice == 1:
+             course_id = input("\nWhat is the course code you're searching for: \n")
+             check_coursecode = check_courses(course_id)
+             if check_coursecode == "course_id":
+                    print("COURSE: ")
+             else:
+                    print("Error in course code!")
+        else:
+            print("\nError!")
+        check = 1
 
-        while user_type != "":
-            print("Choose one of the following options:\n")
-            admin_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add /Remove courses from the system\n4- Display all courses\n\n"))
-            if admin_choice == 1:
-                print(f"Goodbye {username}!\n")
-                user_type = ""
-            elif admin_choice == 2:
-                search_courses_menu()
-            elif admin_choice == 3:
-                user_input = int(input("\n1- Add course\n2- Remove course\n\n"))
-                match user_input:
-                    case 1:
-                        course_id = str(input("ID: "))
-                        course_title = str(input("Title: "))
-                        course_department = str(input("Department: "))
-                        course_time = str(input("Time: "))
-                        course_days = str(input("Days: "))
-                        course_semester = str(input("Semester: "))
-                        course_year = int(input("Year: "))
-                        course_credits = int(input("Credits: "))
-
-                        Admin.add_course(None, Course(course_id, course_title, course_department, course_time, course_days, course_semester, course_year, course_credits))
-                    case 2:
-                        user_input = input("Enter the id of the course you would like to remove: ")
-                        search_results = search_courses("id", user_input)
-                        if (len(search_results) > 0):
-                            Admin.remove_course(None, search_results[0])
-                        else:
-                            print(f"No course with id {user_input} found in database\n")
-                    case _:
-                        print("Invalid selection\n")
-            elif admin_choice == 4:
-                display_courses()
-            else:
-                print("Please choose from one of the displayed options\n")
     elif user_type == "instructor":
         print("---------Instructor Options---------\n\n")
+        print("Choose one of the following options:\n")
+        instructor_choice = int(input("\n1- Search all courses\n2- Assemble and print course roster\n\n"))
+        if instructor_choice == 1:
+             course_id = input("\nWhat is the course code you're searching for: \n")
+             check_coursecode = check_courses(course_id)
+             if check_coursecode == "course_id":
+                print("COURSE: ")
+             else:
+                print("Error in course code!")
+        else:
+            print("\nError!")
+        check = 1
 
-        user = Instructor(username)
+    else:
+         print("Login Error!")
+         check = 0
 
-        while user_type != "":
-            print("Choose one of the following options:\n")
-            instructor_choice = int(input("\n1- Exit\n2- Search all courses\n3- Assemble and print course roster\n4- Display all Courses\n\n"))
-            if instructor_choice == 1:
-                print(f"Goodbye {username}!\n")
-                user_type = ""
-            elif instructor_choice == 2:
-                search_courses_menu()
-            elif instructor_choice == 3:
-                user_input = int(input("\n1- Add a course to your roster\n2- Remove a course from your roster\n3- Print your course roster\n\n"))
-                match user_input:
-                    case 1:
-                        user_input = input("Enter the id of the course you would like to add: ")
-                        search_results = search_courses("id", user_input)
-                        if (len(search_results) > 0):
-                            user.add_course(search_results[0])
-                            print(f"Course {user_input} has been added to your roster.\n")
-                        else:
-                            print(f"No course with id {user_input} found in the database\n")
-                    case 2:
-                        if (len(user.course_list) > 0):
-                            print("Your course roster:\n")
-                            display_courses(user.course_list)
-                            user_input = input("Enter the id of the course you would like to remove: ")
-                            search_results = search_courses("id", user_input)
-                            if (len(search_results) > 0):
-                                user.remove_course(search_results[0])
-                                print(f"Course {user_input} has been removed from your roster.\n")
-                            else:
-                                print(f"No course with id {user_input} found in the database\n")
-                        else:
-                            print("You have no courses to remove\n")
-                    case 3:
-                        user.print_courses()
-            elif instructor_choice == 4:
-                display_courses()
-            else:
-                print("Please choose from one of the displayed options\n")
 
-    user_input = ""
-    while(user_input == ""):
-        user_input = input("Log in as another user? y/n\n")
-        match user_input:
-            case "y":
-                break
-            case "n":
-                exit = True
-            case _:
-                print("Please enter \"y\" or \"n\"")
-                user_input = ""
+
+
+
 
 ''' check = 0
 
