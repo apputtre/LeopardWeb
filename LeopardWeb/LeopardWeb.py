@@ -66,21 +66,39 @@ class Admin(User):
 
     def add_course(self, course):
         #self.course_list.append(course)
+        cursor = database.coursor()
+        cursor.execute("?", (course.name, course.max_students))
+        database.commit()
         print("Adding course:", course.name)
 
     def remove_course(self, course):
+        cursor = database.cursor()
+        cursor.execute("?", (course.name,))
+        database.commit()
         print("Removing course:", course.name)
  
     def add_user_course(self, user, course):
+        cursor = database.cursor()
+        cursor.execute("?", (user.WIT_ID, course.course_id))
+        database.commit()
         print("Student:", user.first_name, user.last_name, "has been added to:", course.name)
 
     def remove_user_course(self, user, course):
+        cursor = database.cursor()
+        cursor.execute("?", (user.WIT_ID, course.course_id))
+        database.commit()
         print("Sudent", user.first_name, user.last_name, "has been removed from:", course.name)
 
     def add_user(self, user):
+        cursor = database.cursor()
+        cursor.execute("?",(user.first_name, user.last_name, user.WIT_ID))
+        database.commit()
         print("Added student:", user.first_name, user.last_name)
 
     def remove_user(self, user):
+        cursor = database.cursor()
+        cursor.execute("?", (user.WIT_ID,))
+        database.commit()
         print("Removed student:", user.first_name, user.last_name)
 
     # Query is used to address the dataframe. In this case it searches for the course name
@@ -144,7 +162,7 @@ print()
 '''
 
 # Remove the commenting to use admin prviliges 
-'''
+
 admin = Admin("Admin", "Headmaster", "WIT_ADMIN")
 admin.search("Applied Programming") # CaSe SenSiTiVe
 admin.print_roster(course1)
@@ -155,7 +173,7 @@ admin.add_user(S1)
 admin.remove_user(S2)
 admin.add_user_course(S1, course1)
 admin.remove_user_course(S1, course1)
-'''
+
 
 
 
@@ -287,7 +305,7 @@ while check != 1:
             print("You are already enrolled in this course.")
         else:
             # Check if the course has available slots
-            if len(course.students) < course.max_students:
+            if len(course.students) <= course.max_students:
                 self.courses.append(course)
                 course.add_student(self)
                 print("Added course:", course.name)
