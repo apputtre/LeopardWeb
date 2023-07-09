@@ -31,7 +31,7 @@ class User:
     def search_courses(self):
         print("Searching my courses...")
 
-
+# Quang Vu & Alexander Puttre
 class Course(User):
     def __init__(self, id: str, title: str, department: str, time: str, days: str, semester: str, year: int, credits: int, max_students = 30):
         self.id = id
@@ -282,6 +282,7 @@ def check_database(email, id):
     else:
         return ""
 
+# Alexander Puttre & Yasmina Habchi
 def search_courses(search_criterion: str, value: str) -> list:
     database = sqlite3.connect("assignment3.db")
     cursor = database.cursor()
@@ -322,6 +323,7 @@ def search_courses(search_criterion: str, value: str) -> list:
 
     return search_matches
 
+# Alexander Puttre
 def display_courses(to_display = None):
     database = sqlite3.connect("assignment3.db")
     cursor = database.cursor()
@@ -339,6 +341,7 @@ def display_courses(to_display = None):
 
     database.close()
 
+# Alexander Puttre
 def search_courses_menu():
     exit = 0
     while exit == 0:
@@ -361,6 +364,7 @@ def search_courses_menu():
         print(f"\nNo courses matching search criterion {search_criterion.lower()} = {search_value}")
 
 
+# Yasmina Habchi & Alexander Puttre
 exit = False
 while not exit:
     username = ""
