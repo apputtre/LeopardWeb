@@ -490,7 +490,8 @@ while not exit:
                 print("Please enter \"y\" or \"n\"")
                 user_input = ""
 
-''' check = 0
+"""
+check = 0
 
 while check != 1:
     print("\nChoose from the following options:\n1- Login Admin\n2- Login Instructor\n3- Login Student\n")
@@ -561,4 +562,4 @@ while check != 1:
 print("Error! Please select one of the following options: ")
 print("\nChoose from the following options:\n1- Login Admin\n2- Login Instructor\n3- Login Student\n")
 choice = int(input("Enter your choice: "))
-'#
+"""
