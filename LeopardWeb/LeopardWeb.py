@@ -32,7 +32,7 @@ class User:
         print("Searching my courses...")
 
     # Quang
-    def add_course(course):
+    def add_course(self, course):
         # Check if the course is already enrolled
         if course in self.courses:
             print("You are already enrolled in this course.")
