@@ -25,6 +25,29 @@ class User:
         print("Goverment Name:", self.first_name, self.last_name)
         print("My WIT ID is:", self.WIT_ID)
 
+    # Quang
+    def add_course(course):
+        # Check if the course is already enrolled
+        if course in self.courses:
+            print("You are already enrolled in this course.")
+        else:
+            # Check if the course has available slots
+            if len(course.students) < course.max_students:
+                self.courses.append(course)
+                course.add_student(self)
+                print("Added course:", course.name)
+            else:
+                print("Course is full. Unable to enroll.")
+
+    # Quang
+    def remove_course(self, course):
+        if course in self.courses:
+            self.courses.remove(course)
+            course.students.remove(self)
+            print("Removed course:", course.name)
+        else:
+            print("You are not enrolled in this course.")
+
     def search_courses(self):
         print("Searching my courses...")
 
@@ -277,30 +300,7 @@ while check != 1:
 
 
     # Quang: Add/Remove courses based on course ID
-    def check_courses(course_id):
-        database = sqlite3.connect("assignment3.db")
-        cursor = database.cursor()
 
-    def add_course(self, course):
-        # Check if the course is already enrolled
-        if course in self.courses:
-            print("You are already enrolled in this course.")
-        else:
-            # Check if the course has available slots
-            if len(course.students) < course.max_students:
-                self.courses.append(course)
-                course.add_student(self)
-                print("Added course:", course.name)
-            else:
-                print("Course is full. Unable to enroll.")
-
-    def remove_course(self, course):
-        if course in self.courses:
-            self.courses.remove(course)
-            course.students.remove(self)
-            print("Removed course:", course.name)
-        else:
-            print("You are not enrolled in this course.")
 
 
 ''' check = 0
