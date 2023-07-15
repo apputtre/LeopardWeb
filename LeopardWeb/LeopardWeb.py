@@ -388,134 +388,136 @@ def search_courses_menu():
 
 
 # Yasmina Habchi & Alexander Puttre
-exit = False
-while not exit:
-    username = ""
-    user_type = ""
+
+if __name__ == "main":
     exit = False
-    while user_type == "":
-        print("\nWelcome! Login:\n \n")
-        username = input("Username:\n")
-        WIT_ID = int(input("WIT_ID: \n"))
-        password = input("Password: \n")
+    while not exit:
+        username = ""
+        user_type = ""
+        exit = False
+        while user_type == "":
+            print("\nWelcome! Login:\n \n")
+            username = input("Username:\n")
+            WIT_ID = int(input("WIT_ID: \n"))
+            password = input("Password: \n")
 
-        user_type = check_database(username, WIT_ID)
+            user_type = check_database(username, WIT_ID)
 
-        if user_type == "":
-            print("Error: user not found. Please try again\n")
-        else:
-            print(f"Logged in successfully as {user_type}!\n")
-
-    if user_type == "student":
-        print("----------Student Options-----------\n\n")
-
-        while user_type != "":
-            print("Choose one of the following options:\n")
-            student_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add / Remove courses from semester schedule\n4- Display all courses\n\n"))
-            if student_choice == 1:
-                print(f"Goodbye {username}!\n")
-                user_type = ""
-            elif student_choice == 2:
-                search_courses_menu()
-            elif student_choice == 3:
-                print("to be implemented\n")
-            elif student_choice == 4:
-                display_courses()
+            if user_type == "":
+                print("Error: user not found. Please try again\n")
             else:
-                print("Please choose from one of the displayed options\n")
-    elif user_type == "admin":
-        print("---------Admin menu---------\n\n")
+                print(f"Logged in successfully as {user_type}!\n")
 
-        while user_type != "":
-            print("Choose one of the following options:\n")
-            admin_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add /Remove courses from the system\n4- Display all courses\n\n"))
-            if admin_choice == 1:
-                print(f"Goodbye {username}!\n")
-                user_type = ""
-            elif admin_choice == 2:
-                search_courses_menu()
-            elif admin_choice == 3:
-                user_input = int(input("\n1- Add course\n2- Remove course\n\n"))
-                match user_input:
-                    case 1:
-                        course_id = str(input("ID: "))
-                        course_title = str(input("Title: "))
-                        course_department = str(input("Department: "))
-                        course_time = str(input("Time: "))
-                        course_days = str(input("Days: "))
-                        course_semester = str(input("Semester: "))
-                        course_year = int(input("Year: "))
-                        course_credits = int(input("Credits: "))
+        if user_type == "student":
+            print("----------Student Options-----------\n\n")
 
-                        Admin.add_course(None, Course(course_id, course_title, course_department, course_time, course_days, course_semester, course_year, course_credits))
-                    case 2:
-                        user_input = input("Enter the id of the course you would like to remove: ")
-                        search_results = search_courses("id", user_input)
-                        if (len(search_results) > 0):
-                            Admin.remove_course(None, search_results[0])
-                        else:
-                            print(f"No course with id {user_input} found in database\n")
-                    case _:
-                        print("Invalid selection\n")
-            elif admin_choice == 4:
-                display_courses()
-            else:
-                print("Please choose from one of the displayed options\n")
-    elif user_type == "instructor":
-        print("---------Instructor Options---------\n\n")
+            while user_type != "":
+                print("Choose one of the following options:\n")
+                student_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add / Remove courses from semester schedule\n4- Display all courses\n\n"))
+                if student_choice == 1:
+                    print(f"Goodbye {username}!\n")
+                    user_type = ""
+                elif student_choice == 2:
+                    search_courses_menu()
+                elif student_choice == 3:
+                    print("to be implemented\n")
+                elif student_choice == 4:
+                    display_courses()
+                else:
+                    print("Please choose from one of the displayed options\n")
+        elif user_type == "admin":
+            print("---------Admin menu---------\n\n")
 
-        user = Instructor(username)
+            while user_type != "":
+                print("Choose one of the following options:\n")
+                admin_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add /Remove courses from the system\n4- Display all courses\n\n"))
+                if admin_choice == 1:
+                    print(f"Goodbye {username}!\n")
+                    user_type = ""
+                elif admin_choice == 2:
+                    search_courses_menu()
+                elif admin_choice == 3:
+                    user_input = int(input("\n1- Add course\n2- Remove course\n\n"))
+                    match user_input:
+                        case 1:
+                            course_id = str(input("ID: "))
+                            course_title = str(input("Title: "))
+                            course_department = str(input("Department: "))
+                            course_time = str(input("Time: "))
+                            course_days = str(input("Days: "))
+                            course_semester = str(input("Semester: "))
+                            course_year = int(input("Year: "))
+                            course_credits = int(input("Credits: "))
 
-        while user_type != "":
-            print("Choose one of the following options:\n")
-            instructor_choice = int(input("\n1- Exit\n2- Search all courses\n3- Assemble and print course roster\n4- Display all Courses\n\n"))
-            if instructor_choice == 1:
-                print(f"Goodbye {username}!\n")
-                user_type = ""
-            elif instructor_choice == 2:
-                search_courses_menu()
-            elif instructor_choice == 3:
-                user_input = int(input("\n1- Add a course to your roster\n2- Remove a course from your roster\n3- Print your course roster\n\n"))
-                match user_input:
-                    case 1:
-                        user_input = input("Enter the id of the course you would like to add: ")
-                        search_results = search_courses("id", user_input)
-                        if (len(search_results) > 0):
-                            user.add_course(search_results[0])
-                            print(f"Course {user_input} has been added to your roster.\n")
-                        else:
-                            print(f"No course with id {user_input} found in the database\n")
-                    case 2:
-                        if (len(user.course_list) > 0):
-                            print("Your course roster:\n")
-                            display_courses(user.course_list)
+                            Admin.add_course(None, Course(course_id, course_title, course_department, course_time, course_days, course_semester, course_year, course_credits))
+                        case 2:
                             user_input = input("Enter the id of the course you would like to remove: ")
                             search_results = search_courses("id", user_input)
                             if (len(search_results) > 0):
-                                user.remove_course(search_results[0])
-                                print(f"Course {user_input} has been removed from your roster.\n")
+                                Admin.remove_course(None, search_results[0])
+                            else:
+                                print(f"No course with id {user_input} found in database\n")
+                        case _:
+                            print("Invalid selection\n")
+                elif admin_choice == 4:
+                    display_courses()
+                else:
+                    print("Please choose from one of the displayed options\n")
+        elif user_type == "instructor":
+            print("---------Instructor Options---------\n\n")
+
+            user = Instructor(username)
+
+            while user_type != "":
+                print("Choose one of the following options:\n")
+                instructor_choice = int(input("\n1- Exit\n2- Search all courses\n3- Assemble and print course roster\n4- Display all Courses\n\n"))
+                if instructor_choice == 1:
+                    print(f"Goodbye {username}!\n")
+                    user_type = ""
+                elif instructor_choice == 2:
+                    search_courses_menu()
+                elif instructor_choice == 3:
+                    user_input = int(input("\n1- Add a course to your roster\n2- Remove a course from your roster\n3- Print your course roster\n\n"))
+                    match user_input:
+                        case 1:
+                            user_input = input("Enter the id of the course you would like to add: ")
+                            search_results = search_courses("id", user_input)
+                            if (len(search_results) > 0):
+                                user.add_course(search_results[0])
+                                print(f"Course {user_input} has been added to your roster.\n")
                             else:
                                 print(f"No course with id {user_input} found in the database\n")
-                        else:
-                            print("You have no courses to remove\n")
-                    case 3:
-                        user.print_courses()
-            elif instructor_choice == 4:
-                display_courses()
-            else:
-                print("Please choose from one of the displayed options\n")
+                        case 2:
+                            if (len(user.course_list) > 0):
+                                print("Your course roster:\n")
+                                display_courses(user.course_list)
+                                user_input = input("Enter the id of the course you would like to remove: ")
+                                search_results = search_courses("id", user_input)
+                                if (len(search_results) > 0):
+                                    user.remove_course(search_results[0])
+                                    print(f"Course {user_input} has been removed from your roster.\n")
+                                else:
+                                    print(f"No course with id {user_input} found in the database\n")
+                            else:
+                                print("You have no courses to remove\n")
+                        case 3:
+                            user.print_courses()
+                elif instructor_choice == 4:
+                    display_courses()
+                else:
+                    print("Please choose from one of the displayed options\n")
 
-    user_input = ""
-    while(user_input == ""):
-        user_input = input("Log in as another user? y/n\n")
-        match user_input:
-            case "y":
-                break
-            case "n":
-                exit = True
-            case _:
-                print("Please enter \"y\" or \"n\"")
-                user_input = ""
+        user_input = ""
+        while(user_input == ""):
+            user_input = input("Log in as another user? y/n\n")
+            match user_input:
+                case "y":
+                    break
+                case "n":
+                    exit = True
+                case _:
+                    print("Please enter \"y\" or \"n\"")
+                    user_input = ""
 
 """
 check = 0

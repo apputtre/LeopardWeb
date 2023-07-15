@@ -26,3 +26,8 @@ def init_db():
     )
 
     return dbcursor
+
+def fetch_course(dbcursor, id):
+    dbcursor.execute(f"SELECT * FROM COURSES WHERE ID = '{id}'")
+    result = dbcursor.fetchall()
+    return result

@@ -4,13 +4,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>6d31bdee-6448-4167-88ff-a1f818277ccb</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>LeopardWeb.py</StartupFile>
+    <StartupFile>test.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>LeopardWeb</Name>
     <RootNamespace>LeopardWeb</RootNamespace>
+    <TestFramework>unittest</TestFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,6 +26,7 @@
     <Compile Include="Database.py" />
     <Compile Include="LeopardWeb.py" />
     <Compile Include="python_sqlite_programmers.py" />
+    <Compile Include="test.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assignment3.db" />
