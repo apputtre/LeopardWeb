@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
 
 
-class TestInstructorSearchCourse(unittest.TestCase):
+class TestInstructorSearchUser(unittest.TestCase):
 
     def setUp(self):
         db = sqlite3.connect("assignment3.db")
@@ -112,9 +112,9 @@ class TestInstructorSearchCourse(unittest.TestCase):
 
         course = Course.from_search_result(search_result[0], self.test_course.max_students)
 
-        check_database(hamiltonm, 30001)
-        check_database(turinga, 20004)
-        check_database(habchiy, 10011)
+        check_database("hamiltonm", 30001)
+        check_database("turinga", 20004)
+        check_database("habchiy", 10011)
 
 
         db.commit()
