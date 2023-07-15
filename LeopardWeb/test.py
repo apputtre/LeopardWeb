@@ -2,8 +2,11 @@ import unittest
 import sqlite3
 from LeopardWeb import Admin
 from LeopardWeb import Instructor
+from LeopardWeb import Student
 from LeopardWeb import Course
+from LeopardWeb import check_database
 from Database import fetch_course
+
 
 class TestAdminAddRemoveCourse(unittest.TestCase):
 
@@ -108,6 +111,10 @@ class TestInstructorSearchCourse(unittest.TestCase):
         assert len(search_result) == 1, f"Search result has incorrect length: {len(search_result)}"
 
         course = Course.from_search_result(search_result[0], self.test_course.max_students)
+
+        check_database(hamiltonm, 30001)
+        check_database(turinga, 20004)
+        check_database(habchiy, 10011)
 
 
         db.commit()
