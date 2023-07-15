@@ -82,19 +82,24 @@ class TestInstructorSearchCourse(unittest.TestCase):
         db = sqlite3.connect("assignment3.db")
         dbcursor = db.cursor()
 
-        dbcursor.execute("DELETE FROM COURSES WHERE ID = 'id'")
+        dbcursor.execute("SELECT * FROM ADMIN WHERE email = \'{email}\' AND ID = \'{id}'")
+        dbcursor.execute("SELECT * FROM STUDENT WHERE email = \'{email}\' AND ID = \'{id}'")
+        dbcursor.execute("SELECT * FROM INSTRUCTOR WHERE email = \'{email}\' AND ID = \'{id}'")
 
         db.commit()
         db.close()
 
         self.test_instructor = Instructor("first_name", "last_name", 0)
-        self.test_course = Course("id", "title", "department", "time", "days", "semester", 2023, 4, 25)
+        self.test_student = Student("first_name", "last_name", 0)
+        self.test_admin = Admin("first_name", "last_name", 0)
 
     def tearDown(self):
         pass
 
-    def test_search_course(self):
-        self.test_instructor.search_courses_menu(self.test_course)
+    def test_checkdatabase(self):
+        self.test_instructor.check_database(self.test_instructor)
+        self.test_student.check_database(self.test_student)
+        self.test_admin.check_database(self.test_admin)
 
         db = sqlite3.connect("assignment3.db")
         dbcursor = db.cursor()
