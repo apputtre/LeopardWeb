@@ -2,7 +2,6 @@ import unittest
 import sqlite3
 from LeopardWeb import Admin
 from LeopardWeb import Instructor
-from LeopardWeb import Student
 from LeopardWeb import Course
 from Database import fetch_course
 
