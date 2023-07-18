@@ -3,6 +3,7 @@
 #import assignment3
 from ctypes import sizeof
 import sqlite3
+from tkinter.font import names
 from typing import *
 
 database = sqlite3.connect("assignment3.db")
@@ -10,10 +11,11 @@ curr_user = None
 
 # Attributes: First, last name, ID
 class User:
-    def __init__(self, first_name, last_name, WIT_ID): # Base Class
+    def __init__(self, first_name, last_name, WIT_ID, email): # Base Class
         self.first_name = first_name
         self.last_name = last_name
         self.WIT_ID = WIT_ID
+        self.email = email
 
     def first(self):
         print("First name:", self.first_name)
@@ -31,19 +33,6 @@ class User:
     def search_courses(self):
         print("Searching my courses...")
 
-    # Quang
-    def add_course(self, course):
-        # Check if the course is already enrolled
-        if course in self.courses:
-            print("You are already enrolled in this course.")
-        else:
-            # Check if the course has available slots
-            if len(course.students) < course.max_students:
-                self.courses.append(course)
-                course.add_student(self)
-                print("Added course:", course.name)
-            else:
-                print("Course is full. Unable to enroll.")
 
     # Quang
     def remove_course(self, course):
@@ -96,6 +85,49 @@ class Course(User):
             return True
         return False                        # If students exceed the threshold, it will return a false
 
+class Student(User):
+    def __init__(self, WIT_ID, name, surname, gradyear, major, email, courses = []):
+        self.WIT_ID = WIT_ID
+        self.name = name
+        self.surname = surname
+        self.gradyear = gradyear
+        self.major = major
+        self.email = email
+        self.courses = courses
+
+    # Quang
+    def add_course(self, course):
+        # Check if the course is already enrolled
+        if course in self.courses:
+            print("You are already enrolled in this course.")
+        else:
+            # Check if the course has available slots
+            if len(course.students) < course.max_students:
+                self.courses.append(course)
+                course.add_student(self)
+                print("Added course:", course.title)
+
+                db = sqlite3.connect("assignment3.db")
+                dbcursor = db.cursor()
+
+                dbcursor.execute(f"INSERT INTO STUDENT courses VALUE '{course.id}' WHERE email = '{self.email}'")
+
+                db.commit()
+                db.close()
+            else:
+                print("Course is full. Unable to enroll.")
+
+    def from_search_result(search_result: str, max_students = 30):
+
+        return Student(
+                search_result[0],
+                search_result[1],
+                search_result[2],
+                search_result[3],
+                search_result[4],
+                search_result[5],
+                []
+                )
 
 class Instructor(User):
     def __init__(self, first_name):
@@ -178,103 +210,6 @@ class Admin(User):
             print(student.first_name, student.last_name, "| WIT_ID:", student.WIT_ID)
         print ("\n")  
 
-"""
-
-# What if I want 100+ students
-S1 = User("Quang", "Vu.", "W00000")
-S2 = User("Alex", "Puttre.", "W00001")
-S3 = User("Yasmina", "Habchi.", "W00002")
-S4 = User("Liam", "Nasar.", "W00003")
-#S1.speak()
-#S2.speak()
-#S3.speak()
-#S4.speak()
-print()
-
-
-# Create a class called course1
-course1 = Course("Applied Programming Concepts", 3) # 3 stands for max threshold
-
-# Instructure1 is the name for the professor when you call it. 
-instructor1 = Instructor("Rawlins")
-
-# Adding professor to a "course1"
-instructor1.add_course(course1)
-
-# Add students to a specific course
-course1.add_student(S1)
-course1.add_student(S2)
-course1.add_student(S4)
-course1.add_student(S3)
-
-
-# Print course roster (Instructor & Admin)
-for student in course1.students:
-    print("First Name:", student.first_name)
-    print("Last Name:", student.last_name)
-    print("ID:", student.WIT_ID)
-    print()
-
-'''
-# What classes does each professor teach?
-instructor1.print_courses()
-print()
-'''
-
-# Remove the commenting to use admin prviliges 
-'''
-admin = Admin("Admin", "Headmaster", "WIT_ADMIN")
-admin.search("Applied Programming") # CaSe SenSiTiVe
-admin.print_roster(course1)
-admin.print_course(course1)
-admin.remove_course(course1)
-admin.add_course(course1)
-admin.add_user(S1)
-admin.remove_user(S2)
-admin.add_user_course(S1, course1)
-admin.remove_user_course(S1, course1)
-'''
-
-
-# How to put a txt or .db file
-##
-
-## Yasmina: Login - Logout && Menu to implement changes
-def check_database(email, id):
-    database = sqlite3.connect("assignment3.db")
-    cursor = database.cursor()
-
-    query1 = f"SELECT * FROM ADMIN WHERE email = \'{email}\' AND ID = \'{id}\'"
-    cursor.execute(query1)
-    query1_result = cursor.fetchone()
-
-    query2 = f"SELECT * FROM INSTRUCTOR WHERE email = \'{email}\' AND ID = \'{id}\'"
-    cursor.execute(query2)
-    query2_result = cursor.fetchone()
-
-    query3 = f"SELECT * FROM STUDENT WHERE email = \'{email}\' AND ID = \'{id}\'"
-    cursor.execute(query3)
-    query3_result = cursor.fetchone()
-
-    database.close()
-
-    if query1_result:
-        print("Login as admin successful!")
-        return "admin"
-
-    elif query2_result:
-        print("Login as instructor successful!")
-        return "instructor"
-
-    elif query3_result:
-        print("Login as student successful!")
-        return "student"
-    else:
-        print("Login error!")
-        return ""
-
-"""
-
 ## Yasmina: Login - Logout && Menu to implement changes
 def check_database(email, id):
     database = sqlite3.connect("assignment3.db")
@@ -346,6 +281,44 @@ def search_courses(search_criterion: str, value: str) -> list:
 
     return search_matches
 
+def search_students(search_criterion: str, value: str) -> list:
+    database = sqlite3.connect("assignment3.db")
+    cursor = database.cursor()
+
+    search_criterion = search_criterion.upper()
+
+    query = ""
+
+    match search_criterion:
+        case "ID":
+            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
+        case "NAME":
+            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
+        case "SURNAME":
+            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
+        case "GRADYEAR":
+            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
+        case "MAJOR":
+            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
+        case "EMAIL":
+            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
+        case "COURSES":
+            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = {value}"
+        case _:
+            raise Exception("Invalid search criterion")
+
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+    search_matches = []
+
+    for i in result:
+        search_matches.append(Student.from_search_result(i))
+
+    database.close()
+
+    return search_matches
+
 # Alexander Puttre
 def display_courses(to_display = None):
     database = sqlite3.connect("assignment3.db")
@@ -388,8 +361,7 @@ def search_courses_menu():
 
 
 # Yasmina Habchi & Alexander Puttre
-
-if __name__ == "main":
+if __name__ == "__main__":
     exit = False
     while not exit:
         username = ""
@@ -411,17 +383,31 @@ if __name__ == "main":
         if user_type == "student":
             print("----------Student Options-----------\n\n")
 
+            user = search_students("email", username)[0]
+
+            print(user.name)
+            print(user.courses)
+
             while user_type != "":
                 print("Choose one of the following options:\n")
-                student_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add / Remove courses from semester schedule\n4- Display all courses\n\n"))
+                student_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add / Remove courses from semester schedule\n4- Display semester schedule\n5- Display all courses\n\n"))
                 if student_choice == 1:
                     print(f"Goodbye {username}!\n")
                     user_type = ""
                 elif student_choice == 2:
                     search_courses_menu()
                 elif student_choice == 3:
-                    print("to be implemented\n")
+                    user_input1 = int(input("\n1- Add course\n2- Remove course\n"))
+                    if user_input1 == 1:
+                        user_input2 = input("Enter the id of the course to add: ")
+                        user.add_course(search_courses("id", user_input2)[0])
+
+                        for i in user.courses:
+                            print(i)
+
                 elif student_choice == 4:
+                    print("To be implemented")
+                elif student_choice == 5:
                     display_courses()
                 else:
                     print("Please choose from one of the displayed options\n")
@@ -519,76 +505,4 @@ if __name__ == "main":
                     print("Please enter \"y\" or \"n\"")
                     user_input = ""
 
-"""
 check = 0
-
-while check != 1:
-    print("\nChoose from the following options:\n1- Login Admin\n2- Login Instructor\n3- Login Student\n")
-    choice = int(input("Enter here: "))
-
-    if choice == 1:
-        firstname = input("Enter admin's first name: ")
-        lastname = input("Enter admin's last name: ")
-        WIT_ID = int(input("Enter admin's ID: "))
-        password = input("Enter password: ")
-
-        person1 = Admin(firstname, lastname, WIT_ID)
-
-        print("1- OPTION 1\n 2- OPTION 2\n 3- OPTION 3...")
-        adminchoice = int(input("Enter a number: "))
-
-        if adminchoice == 1:
-            print("OPTION 1")
-        elif adminchoice == 2:
-            print("OPTION 2")
-        elif adminchoice == 3:
-            print("OPTION 3")
-
-        check = 0
-
-    elif choice == 2:
-        firstname = input("Enter instructor's first name: ")
-        lastname = input("Enter instructor's last name: ")
-        WIT_ID = int(input("Enter instructor's ID: "))
-
-        person1 = Instructor(firstname, lastname, WIT_ID)
-        
-        print("1- OPTION 1\n 2- OPTION 2\n 3- OPTION 3...")
-        instructorchoice = int(input("Enter a number: "))
-
-        if instructorchoice == 1:
-            print("OPTION 1")
-        elif instructorchoice == 2:
-            print("OPTION 2")
-        elif instructorchoice == 3:
-            print("OPTION 3")
-
-        check = 0
-        
-
-    elif choice == 3:
-        firstname = input("Enter student's first name: ")
-        lastname = input("Enter student's last name: ")
-        WIT_ID = int(input("Enter student's ID: "))
-
-        person1 = User(firstname, lastname, WIT_ID)
-        
-        print("1- OPTION 1\n 2- OPTION 2\n 3- OPTION 3...")
-        studentchoice = int(input("Enter a number: "))
-
-        if studentchoice == 1:
-            print("OPTION 1")
-        elif studentchoice == 2:
-            print("OPTION 2")
-        elif studentchoice == 3:
-            print("OPTION 3")
-
-        check = 0
-
-    else:
-        check = 1
-
-print("Error! Please select one of the following options: ")
-print("\nChoose from the following options:\n1- Login Admin\n2- Login Instructor\n3- Login Student\n")
-choice = int(input("Enter your choice: "))
-"""

@@ -2,7 +2,6 @@ import unittest
 import sqlite3
 from LeopardWeb import Admin
 from LeopardWeb import Instructor
-from LeopardWeb import Student
 from LeopardWeb import Course
 from LeopardWeb import check_database
 from Database import fetch_course
@@ -75,8 +74,7 @@ class TestAdminAddRemoveCourse(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
-
-
+"""
 
 class TestInstructorSearchUser(unittest.TestCase):
 
@@ -119,3 +117,5 @@ class TestInstructorSearchUser(unittest.TestCase):
 
         db.commit()
         db.close()
+
+    """
