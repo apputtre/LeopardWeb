@@ -117,6 +117,14 @@ class Student(User):
             else:
                 print("Course is full. Unable to enroll.")
 
+    def time_conflict(courses):
+        for i in range (0, len(courses)-1):
+            for j in range (0, len(courses)-1):
+                if (courses(i).time == courses(j).time):
+                    if (courses(i).days == courses(j).days):
+                        print(courses(i) + " conflicts " + courses(j))
+
+
     def from_search_result(search_result: str, max_students = 30):
 
         return Student(
