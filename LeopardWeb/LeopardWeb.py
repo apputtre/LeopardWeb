@@ -95,6 +95,15 @@ class Student(User):
         self.email = email
         self.courses = courses
 
+        dbcursor.execute(f"SELECT COURSES FROM STUDENT WHERE ID = {WIT_ID}")
+        course_string = dbcursor.fetchone()[0]
+        dbcursor.execute(f"SELECT ID FROM COURSES")
+        course_ids = dbcursor.fetchall()
+
+        for course_id in course_ids:
+            if course_id[0] in course_string:
+                courses.append(search_courses("ID", course_id[0])[0])
+
     # Quang and Alexander Puttre
     def add_course(self, course):
         # Check if the course is already enrolled
@@ -320,7 +329,7 @@ def search_students(search_criterion: str, value: str) -> list:
 
 
 def display_courses(to_display = None):
-    dbcursor = database.dbcursor()
+    dbcursor = database.cursor()
 
     courses = []
     if to_display == None:
@@ -402,7 +411,7 @@ if __name__ == "__main__":
                             print(i)
 
                 elif student_choice == 4:
-                    print("To be implemented")
+                    display_courses(user.courses)
                 elif student_choice == 5:
                     display_courses()
                 else:
