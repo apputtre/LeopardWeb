@@ -104,6 +104,29 @@ class Student(User):
             if course_id[0] in course_string:
                 courses.append(search_courses("ID", course_id[0])[0])
 
+    def time_conflict(self):
+        # Check if courses enrolled have time conflicts in schedule
+        courses = self.courses
+        
+        days = ["M", "T", "W", "R", "F"]
+
+        for i in range (0, len(courses)):
+            for j in range (0, len(courses)):
+
+                if (i != j): 
+                    for day in days:
+                        if (day in courses(i).days and day in courses(j).days):
+                            start_time1 = int(courses(i).time[0:4:1].replace(":", ""))
+                            end_time1 = int(courses(i).time[6:10:1].replace(":", ""))
+                            start_time2 = int(courses(j).time[0:4:1].replace(":", ""))
+                            end_time2 = int(courses(j).time[6:10:1].replace(":", ""))
+
+                            if (end_time1 > start_time2 and end_time2 > start_time1):
+                                print("There is a time conflict with " + courses(i).ID + " and " + courses(j).ID)
+                                return (True)
+                            else:
+                                return (False)
+
     # Quang and Alexander Puttre
     def add_course(self, course):
         # Check if the course is already enrolled
@@ -114,23 +137,26 @@ class Student(User):
             if len(course.students) < course.max_students:
                 print(course.id)
 
-                dbcursor.execute(f"UPDATE STUDENT SET courses = (courses || ', {course.id}') WHERE email = '{self.email}'")
-                database.commit()
-
                 self.courses.append(course)
-                course.add_student(self)
 
-                print("Added course:", course.title)
+                if self.time_conflict() :
+                    self.courses.remove(course)
+
+                else: 
+
+                    dbcursor.execute(f"UPDATE STUDENT SET courses = (courses || ', {course.id}') WHERE email = '{self.email}'")
+                    database.commit()
+
+                    course.add_student(self)
+
+                    print("Added course:", course.title)
+
+
             else:
                 print("Course is full. Unable to enroll.")
 
-    def time_conflict(courses):
-        for i in range (0, len(courses)-1):
-            for j in range (0, len(courses)-1):
-                if (courses(i).time == courses(j).time):
-                    if (courses(i).days == courses(j).days):
-                        print(courses(i) + " conflicts " + courses(j))
 
+   
 
     def from_search_result(search_result: str, max_students = 30):
 
