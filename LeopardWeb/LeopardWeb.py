@@ -6,7 +6,8 @@ import sqlite3
 from tkinter.font import names
 from typing import *
 
-database = sqlite3.connect("assignment3.db")
+database = sqlite3.connect("LeopardWeb\\assignment3.db")
+dbcursor = database.cursor()
 curr_user = None
 
 # Attributes: First, last name, ID
@@ -95,7 +96,7 @@ class Student(User):
         self.email = email
         self.courses = courses
 
-    # Quang
+    # Quang and Alexander Puttre
     def add_course(self, course):
         # Check if the course is already enrolled
         if course in self.courses:
@@ -103,17 +104,15 @@ class Student(User):
         else:
             # Check if the course has available slots
             if len(course.students) < course.max_students:
+                print(course.id)
+
+                dbcursor.execute(f"UPDATE STUDENT SET courses = (courses || ', {course.id}') WHERE email = '{self.email}'")
+                database.commit()
+
                 self.courses.append(course)
                 course.add_student(self)
+
                 print("Added course:", course.title)
-
-                db = sqlite3.connect("assignment3.db")
-                dbcursor = db.cursor()
-
-                dbcursor.execute(f"INSERT INTO STUDENT courses VALUE '{course.id}' WHERE email = '{self.email}'")
-
-                db.commit()
-                db.close()
             else:
                 print("Course is full. Unable to enroll.")
 
@@ -154,10 +153,7 @@ class Admin(User):
         super().__init__(first_name, last_name, WIT_ID)
 
     def add_course(self, course):
-        database = sqlite3.connect("assignment3.db")
-        cursor = database.cursor()
-
-        cursor.execute(f"""INSERT INTO COURSES VALUES(
+        dbcursor.execute(f"""INSERT INTO COURSES VALUES(
                 "{course.id}",
                 "{course.title}",
                 "{course.department}",
@@ -171,16 +167,11 @@ class Admin(User):
         )
 
         database.commit()
-        database.close()
 
     def remove_course(self, course):
-        database = sqlite3.connect("assignment3.db")
-        cursor = database.cursor()
-
-        cursor.execute(f"DELETE FROM COURSES WHERE ID = '{course.id}'")
+        dbcursor.execute(f"DELETE FROM COURSES WHERE ID = '{course.id}'")
 
         database.commit()
-        database.close()
  
     def add_user_course(self, user, course):
         print("Student:", user.first_name, user.last_name, "has been added to:", course.name)
@@ -212,22 +203,17 @@ class Admin(User):
 
 ## Yasmina: Login - Logout && Menu to implement changes
 def check_database(email, id):
-    database = sqlite3.connect("assignment3.db")
-    cursor = database.cursor()
-
     query1 = f"SELECT * FROM ADMIN WHERE email = \'{email}\' AND ID = \'{id}\'"
-    cursor.execute(query1)
-    query1_result = cursor.fetchone()
+    dbcursor.execute(query1)
+    query1_result = dbcursor.fetchone()
 
     query2 = f"SELECT * FROM INSTRUCTOR WHERE email = \'{email}\' AND ID = \'{id}\'"
-    cursor.execute(query2)
-    query2_result = cursor.fetchone()
+    dbcursor.execute(query2)
+    query2_result = dbcursor.fetchone()
 
     query3 = f"SELECT * FROM STUDENT WHERE email = \'{email}\' AND ID = \'{id}\'"
-    cursor.execute(query3)
-    query3_result = cursor.fetchone()
-
-    database.close()
+    dbcursor.execute(query3)
+    query3_result = dbcursor.fetchone()
 
     if query1_result:
         return "admin"
@@ -242,9 +228,6 @@ def check_database(email, id):
 
 # Alexander Puttre & Yasmina Habchi
 def search_courses(search_criterion: str, value: str) -> list:
-    database = sqlite3.connect("assignment3.db")
-    cursor = database.cursor()
-
     search_criterion = search_criterion.upper()
 
     query = ""
@@ -269,22 +252,17 @@ def search_courses(search_criterion: str, value: str) -> list:
         case _:
             raise Exception("Invalid search criterion")
 
-    cursor.execute(query)
-    result = cursor.fetchall()
+    dbcursor.execute(query)
+    result = dbcursor.fetchall()
 
     search_matches = []
 
     for i in result:
         search_matches.append(Course.from_search_result(i))
 
-    database.close()
-
     return search_matches
 
 def search_students(search_criterion: str, value: str) -> list:
-    database = sqlite3.connect("assignment3.db")
-    cursor = database.cursor()
-
     search_criterion = search_criterion.upper()
 
     query = ""
@@ -307,26 +285,21 @@ def search_students(search_criterion: str, value: str) -> list:
         case _:
             raise Exception("Invalid search criterion")
 
-    cursor.execute(query)
-    result = cursor.fetchall()
+    dbcursor.execute(query)
+    result = dbcursor.fetchall()
 
     search_matches = []
 
     for i in result:
         search_matches.append(Student.from_search_result(i))
 
-    database.close()
-
     return search_matches
 
 # Alexander Puttre
 def display_courses(to_display = None):
-    database = sqlite3.connect("assignment3.db")
-    cursor = database.cursor()
-
     courses = []
     if to_display == None:
-        from_db = cursor.execute("SELECT * FROM COURSES")
+        from_db = dbcursor.execute("SELECT * FROM COURSES")
         for i in from_db:
             courses.append(Course.from_search_result(i))
     else:
@@ -334,8 +307,6 @@ def display_courses(to_display = None):
 
     for course in courses:
         print(course)
-
-    database.close()
 
 # Alexander Puttre
 def search_courses_menu():
@@ -504,5 +475,7 @@ if __name__ == "__main__":
                 case _:
                     print("Please enter \"y\" or \"n\"")
                     user_input = ""
+
+    database.close()
 
 check = 0

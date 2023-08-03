@@ -1,6 +1,8 @@
 import sqlite3
 
 def init_db():
+    print("Initializing database\n")
+
     db = sqlite3.connect("LeopardWeb.db")
     dbcursor = db.cursor()
 
