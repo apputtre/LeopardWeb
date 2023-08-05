@@ -8,6 +8,7 @@ from typing import *
 
 database = sqlite3.connect("LeopardWeb\\assignment3.db")
 dbcursor = database.cursor()
+
 curr_user = None
 
 # Attributes: First, last name, ID
@@ -34,8 +35,6 @@ class User:
     def search_courses(self):
         print("Searching my courses...")
 
-
-    # Quang
     def remove_course(self, course):
         if course in self.courses:
             self.courses.remove(course)
@@ -44,7 +43,7 @@ class User:
         else:
             print("You are not enrolled in this course.")
 
-# Quang Vu & Alexander Puttre
+
 class Course(User):
     def __init__(self, id: str, title: str, department: str, time: str, days: str, semester: str, year: int, credits: int, max_students = 30):
         self.id = id
@@ -96,6 +95,38 @@ class Student(User):
         self.email = email
         self.courses = courses
 
+        dbcursor.execute(f"SELECT COURSES FROM STUDENT WHERE ID = {WIT_ID}")
+        course_string = dbcursor.fetchone()[0]
+        dbcursor.execute(f"SELECT ID FROM COURSES")
+        course_ids = dbcursor.fetchall()
+
+        for course_id in course_ids:
+            if course_id[0] in course_string:
+                courses.append(search_courses("ID", course_id[0])[0])
+
+    def time_conflict(self):
+        # Check if courses enrolled have time conflicts in schedule
+        courses = self.courses
+        
+        days = ["M", "T", "W", "R", "F"]
+
+        for i in range (0, len(courses)):
+            for j in range (0, len(courses)):
+
+                if (i != j): 
+                    for day in days:
+                        if (day in courses(i).days and day in courses(j).days):
+                            start_time1 = int(courses(i).time[0:4:1].replace(":", ""))
+                            end_time1 = int(courses(i).time[6:10:1].replace(":", ""))
+                            start_time2 = int(courses(j).time[0:4:1].replace(":", ""))
+                            end_time2 = int(courses(j).time[6:10:1].replace(":", ""))
+
+                            if (end_time1 > start_time2 and end_time2 > start_time1):
+                                print("There is a time conflict with " + courses(i).ID + " and " + courses(j).ID)
+                                return (True)
+                            else:
+                                return (False)
+
     # Quang and Alexander Puttre
     def add_course(self, course):
         # Check if the course is already enrolled
@@ -106,15 +137,26 @@ class Student(User):
             if len(course.students) < course.max_students:
                 print(course.id)
 
-                dbcursor.execute(f"UPDATE STUDENT SET courses = (courses || ', {course.id}') WHERE email = '{self.email}'")
-                database.commit()
-
                 self.courses.append(course)
-                course.add_student(self)
 
-                print("Added course:", course.title)
+                if self.time_conflict() :
+                    self.courses.remove(course)
+
+                else: 
+
+                    dbcursor.execute(f"UPDATE STUDENT SET courses = (courses || ', {course.id}') WHERE email = '{self.email}'")
+                    database.commit()
+
+                    course.add_student(self)
+
+                    print("Added course:", course.title)
+
+
             else:
                 print("Course is full. Unable to enroll.")
+
+
+   
 
     def from_search_result(search_result: str, max_students = 30):
 
@@ -153,6 +195,8 @@ class Admin(User):
         super().__init__(first_name, last_name, WIT_ID)
 
     def add_course(self, course):
+        dbcursor = database.cursor()
+
         dbcursor.execute(f"""INSERT INTO COURSES VALUES(
                 "{course.id}",
                 "{course.title}",
@@ -169,6 +213,8 @@ class Admin(User):
         database.commit()
 
     def remove_course(self, course):
+        dbcursor = database.cursor()
+
         dbcursor.execute(f"DELETE FROM COURSES WHERE ID = '{course.id}'")
 
         database.commit()
@@ -201,17 +247,24 @@ class Admin(User):
             print(student.first_name, student.last_name, "| WIT_ID:", student.WIT_ID)
         print ("\n")  
 
-## Yasmina: Login - Logout && Menu to implement changes
-def check_database(email, id):
-    query1 = f"SELECT * FROM ADMIN WHERE email = \'{email}\' AND ID = \'{id}\'"
+
+def check_database(email, id, password):
+    dbcursor = database.cursor()
+
+
+    ##cursor.execute(f"ALTER TABLE INSTRUCTOR ADD PASSWORD text NOT NULL'")
+    ##cursor.execute(f"ALTER TABLE ADMIN ADD PASSWORD text NOT NULL'")
+
+
+    query1 = f"SELECT * FROM ADMIN WHERE email = \'{email}\' AND ID = \'{id}\' AND PASSWORD = \'{password}\'"
     dbcursor.execute(query1)
     query1_result = dbcursor.fetchone()
 
-    query2 = f"SELECT * FROM INSTRUCTOR WHERE email = \'{email}\' AND ID = \'{id}\'"
+    query2 = f"SELECT * FROM INSTRUCTOR WHERE email = \'{email}\' AND ID = \'{id}\' AND PASSWORD = \'{password}\'"
     dbcursor.execute(query2)
     query2_result = dbcursor.fetchone()
 
-    query3 = f"SELECT * FROM STUDENT WHERE email = \'{email}\' AND ID = \'{id}\'"
+    query3 = f"SELECT * FROM STUDENT WHERE email = \'{email}\' AND ID = \'{id}\' AND PASSWORD = \'{password}\'"
     dbcursor.execute(query3)
     query3_result = dbcursor.fetchone()
 
@@ -226,8 +279,10 @@ def check_database(email, id):
     else:
         return ""
 
-# Alexander Puttre & Yasmina Habchi
+
 def search_courses(search_criterion: str, value: str) -> list:
+    dbcursor = database.cursor()
+
     search_criterion = search_criterion.upper()
 
     query = ""
@@ -263,6 +318,8 @@ def search_courses(search_criterion: str, value: str) -> list:
     return search_matches
 
 def search_students(search_criterion: str, value: str) -> list:
+    dbcursor = database.cursor()
+
     search_criterion = search_criterion.upper()
 
     query = ""
@@ -293,10 +350,13 @@ def search_students(search_criterion: str, value: str) -> list:
     for i in result:
         search_matches.append(Student.from_search_result(i))
 
+
     return search_matches
 
-# Alexander Puttre
+
 def display_courses(to_display = None):
+    dbcursor = database.cursor()
+
     courses = []
     if to_display == None:
         from_db = dbcursor.execute("SELECT * FROM COURSES")
@@ -308,7 +368,7 @@ def display_courses(to_display = None):
     for course in courses:
         print(course)
 
-# Alexander Puttre
+
 def search_courses_menu():
     exit = 0
     while exit == 0:
@@ -331,7 +391,7 @@ def search_courses_menu():
         print(f"\nNo courses matching search criterion {search_criterion.lower()} = {search_value}")
 
 
-# Yasmina Habchi & Alexander Puttre
+
 if __name__ == "__main__":
     exit = False
     while not exit:
@@ -344,7 +404,7 @@ if __name__ == "__main__":
             WIT_ID = int(input("WIT_ID: \n"))
             password = input("Password: \n")
 
-            user_type = check_database(username, WIT_ID)
+            user_type = check_database(username, WIT_ID, password)
 
             if user_type == "":
                 print("Error: user not found. Please try again\n")
@@ -377,7 +437,7 @@ if __name__ == "__main__":
                             print(i)
 
                 elif student_choice == 4:
-                    print("To be implemented")
+                    display_courses(user.courses)
                 elif student_choice == 5:
                     display_courses()
                 else:

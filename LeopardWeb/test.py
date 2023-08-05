@@ -1,8 +1,11 @@
 import unittest
 import sqlite3
 from LeopardWeb import Admin
+from LeopardWeb import Instructor
 from LeopardWeb import Course
+from LeopardWeb import check_database
 from Database import fetch_course
+
 
 class TestAdminAddRemoveCourse(unittest.TestCase):
 
@@ -70,3 +73,49 @@ class TestAdminAddRemoveCourse(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+"""
+
+class TestInstructorSearchUser(unittest.TestCase):
+
+    def setUp(self):
+        db = sqlite3.connect("assignment3.db")
+        dbcursor = db.cursor()
+
+        dbcursor.execute("SELECT * FROM ADMIN WHERE email = \'{email}\' AND ID = \'{id}'")
+        dbcursor.execute("SELECT * FROM STUDENT WHERE email = \'{email}\' AND ID = \'{id}'")
+        dbcursor.execute("SELECT * FROM INSTRUCTOR WHERE email = \'{email}\' AND ID = \'{id}'")
+
+        db.commit()
+        db.close()
+
+        self.test_instructor = Instructor("first_name", "last_name", 0)
+        self.test_student = Student("first_name", "last_name", 0)
+        self.test_admin = Admin("first_name", "last_name", 0)
+
+    def tearDown(self):
+        pass
+
+    def test_checkdatabase(self):
+        self.test_instructor.check_database(self.test_instructor)
+        self.test_student.check_database(self.test_student)
+        self.test_admin.check_database(self.test_admin)
+
+        db = sqlite3.connect("assignment3.db")
+        dbcursor = db.cursor()
+
+        search_result = fetch_course(dbcursor, "id")
+
+        assert len(search_result) == 1, f"Search result has incorrect length: {len(search_result)}"
+
+        course = Course.from_search_result(search_result[0], self.test_course.max_students)
+
+        check_database("hamiltonm", 30001)
+        check_database("turinga", 20004)
+        check_database("habchiy", 10011)
+
+
+        db.commit()
+        db.close()
+
+    """

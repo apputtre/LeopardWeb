@@ -3,8 +3,8 @@ import sqlite3
 database = sqlite3.connect("assignment3.db")
 cursor = database.cursor() 
 
-cursor.execute("INSERT INTO STUDENT VALUES(10011, 'Yasmina', 'Habchi', 2024, 'BSCO', 'habchiy');")
-cursor.execute("INSERT INTO STUDENT VALUES(10012, 'Quang', 'Vu', 2024, 'BSCO', 'vuq1');")
+cursor.execute("INSERT INTO STUDENT VALUES(100155, 'Yasmina', 'Habchi', 2024, 'BSCO', 'habchiy');")
+cursor.execute("INSERT INTO STUDENT VALUES(100156, 'Quang', 'Vu', 2024, 'BSCO', 'vuq1');")
 
 cursor.execute("DELETE FROM INSTRUCTOR WHERE id = 20003;")
 
