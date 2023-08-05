@@ -45,7 +45,7 @@ class User:
 
 
 class Course(User):
-    def __init__(self, id: str, title: str, department: str, time: str, days: str, semester: str, year: int, credits: int, max_students = 30):
+    def __init__(self, id: str, title: str, department: str, time: str, days: str, semester: str, year: int, credits: int, max_students = 30, students = []):
         self.id = id
         self.title = title
         self.department = department
@@ -55,10 +55,20 @@ class Course(User):
         self.year = year
         self.credits = credits
         self.max_students = max_students    # Max students that can be enrolled
-
-        self.students = []                  # List of studnets 
+        self.students = students            # List of studnets 
 
     def from_search_result(search_result: str, max_students = 30):
+
+        dbcursor.execute(f"SELECT STUDENTS FROM COURSES WHERE ID = {search_result[0]}")
+        students_string = dbcursor.fetchone()[0]
+        dbcursor.execute(f"SELECT ID FROM STUDENTS")
+        student_ids = dbcursor.fetchall()
+
+        students = []
+
+        for student_id in student_ids:
+            if student_id in students_string:
+                students.append(search_students("ID", student_id)[0])
 
         return Course(
                 search_result[0],
@@ -69,7 +79,8 @@ class Course(User):
                 search_result[5],
                 search_result[6],
                 search_result[7],
-                max_students
+                max_students,
+                students
                 )
 
     def __repr__(self):
@@ -82,6 +93,10 @@ class Course(User):
     def add_student(self, student):
         if len(self.students) < self.max_students:
             self.students.append(student)
+
+            dbcursor.execute(f"UPDATE COURSES SET STUDENTS = (STUDENTS || ', {student.id}') WHERE ID = '{self.id}'")
+            database.commit()
+
             return True
         return False                        # If students exceed the threshold, it will return a false
 
@@ -151,12 +166,8 @@ class Student(User):
 
                     print("Added course:", course.title)
 
-
             else:
                 print("Course is full. Unable to enroll.")
-
-
-   
 
     def from_search_result(search_result: str, max_students = 30):
 
@@ -171,9 +182,15 @@ class Student(User):
                 )
 
 class Instructor(User):
-    def __init__(self, first_name):
-        self.first_name = first_name
-        self.course_list = []               # Will list the # of courses
+    def __init__(self, WIT_ID, name, surname, title, hireyear, dept, email, courses = []):
+        self.WIT_ID = WIT_ID
+        self.name = name
+        self.surname = surname
+        self.title = title
+        self.hireyear = hireyear
+        self.dept = dept 
+        self.email = email
+        self.courses = courses
 
     def add_course(self, course):
         self.course_list.append(course)
@@ -188,6 +205,11 @@ class Instructor(User):
         else:
             print("Your course roster is empty\n")
 
+    def get_roster(self, course: Course) -> list:
+        students = []
+        for s in course.students:
+            students.push_back(s)
+        return s
 
 class Admin(User):
     # The super() function allows the methods & attributes of the parent class.
@@ -279,6 +301,20 @@ def check_database(email, id, password):
     else:
         return ""
 
+def search_students(id) -> list:
+    dbcursor = database.cursor()
+
+    query = f"SELECT * FROM STUDENTS WHERE ID = \'{id}\'"
+
+    dbcursor.execute(query)
+    result = dbcursor.fetchall()
+
+    search_matches = []
+
+    for i in result:
+        search_matches.append(Student.from_search_result(i))
+
+    return search_matches
 
 def search_courses(search_criterion: str, value: str) -> list:
     dbcursor = database.cursor()
@@ -316,43 +352,6 @@ def search_courses(search_criterion: str, value: str) -> list:
         search_matches.append(Course.from_search_result(i))
 
     return search_matches
-
-def search_students(search_criterion: str, value: str) -> list:
-    dbcursor = database.cursor()
-
-    search_criterion = search_criterion.upper()
-
-    query = ""
-
-    match search_criterion:
-        case "ID":
-            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
-        case "NAME":
-            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
-        case "SURNAME":
-            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
-        case "GRADYEAR":
-            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
-        case "MAJOR":
-            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
-        case "EMAIL":
-            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = \'{value}\'"
-        case "COURSES":
-            query = f"SELECT * FROM STUDENT WHERE {search_criterion} = {value}"
-        case _:
-            raise Exception("Invalid search criterion")
-
-    dbcursor.execute(query)
-    result = dbcursor.fetchall()
-
-    search_matches = []
-
-    for i in result:
-        search_matches.append(Student.from_search_result(i))
-
-
-    return search_matches
-
 
 def display_courses(to_display = None):
     dbcursor = database.cursor()
@@ -505,18 +504,19 @@ if __name__ == "__main__":
                             else:
                                 print(f"No course with id {user_input} found in the database\n")
                         case 2:
-                            if (len(user.course_list) > 0):
-                                print("Your course roster:\n")
-                                display_courses(user.course_list)
-                                user_input = input("Enter the id of the course you would like to remove: ")
-                                search_results = search_courses("id", user_input)
-                                if (len(search_results) > 0):
-                                    user.remove_course(search_results[0])
-                                    print(f"Course {user_input} has been removed from your roster.\n")
-                                else:
-                                    print(f"No course with id {user_input} found in the database\n")
-                            else:
-                                print("You have no courses to remove\n")
+                            courses = user.courses
+                            user.print_courses()
+                            user_input = int("Enter the id of the course to print the roster for: ")
+
+                            found_course = False
+                            for c in courses:
+                                if c.id == user_input:
+                                    found_course = True
+                                    user.print_roster(c)
+
+                            if (not found_course):
+                                print("You are not scheduled to teach that course.\n")
+
                         case 3:
                             user.print_courses()
                 elif instructor_choice == 4:
