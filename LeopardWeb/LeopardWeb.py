@@ -140,7 +140,7 @@ class Student(User):
                 self.courses.append(search_courses("ID", course_id[0])[0])
 
     def __repr__(self):
-        return f"{self.surname}, {self.name} - {self.WIT_ID}"
+        return f"{self.surname}, {self.name} - {self.WIT_ID} (student)"
 
     def time_conflict(self):
         # Check if courses enrolled have time conflicts in schedule
@@ -239,6 +239,9 @@ class Instructor(User):
         for course_id in course_ids:
             if course_id[0] in course_string:
                 self.courses.append(search_courses("ID", course_id[0])[0])
+
+    def __repr__(self):
+        return f"{self.surname}, {self.name} - {self.WIT_ID} ({self.title})"
        
     def from_search_result(search_result: tuple):
         courses = []
@@ -309,14 +312,13 @@ class Instructor(User):
 
 class Admin(User):
     # The super() function allows the methods & attributes of the parent class.
-    def __init__(self, WIT_ID, name, surname, title, office, email, password):
+    def __init__(self, WIT_ID, name, surname, title, office, email):
         self.WIT_ID = WIT_ID
         self.name = name
         self.surname = surname
         self.title = title
         self.office = office
         self.email = email
-        self.password = password
 
     def add_course(self, course):
         dbcursor.execute(f"""INSERT INTO COURSES VALUES(
@@ -642,7 +644,7 @@ if __name__ == "__main__":
 
             while user_type != "":
                 print("Choose one of the following options:\n")
-                admin_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add / Remove courses from the system\n4- Display all courses\n5- Add / remove users from the system\n\n"))
+                admin_choice = int(input("\n1- Log out\n2- Search all courses\n3- Add / Remove courses from the system\n4- Display all courses\n5- Add / remove users from the system\n6- Link / unlink a user from a course\n\n"))
                 if admin_choice == 1:
                     print(f"Goodbye {username}!\n")
                     user_type = ""
@@ -673,6 +675,96 @@ if __name__ == "__main__":
                             print("Invalid selection\n")
                 elif admin_choice == 4:
                     display_courses()
+                elif admin_choice == 5:
+                    admin_choice = int(input("\n1- Add a user\n2- Remove a user\n\n")) 
+
+                    if admin_choice == 1:
+                        admin_choice = int(input("\n1- Add an admin\n2- Add an instructor\n3- Add a student\n\n"))
+                        if admin_choice == 1:
+                            new_user = Admin(
+                                int(input("Enter the user's ID: ")),
+                                str(input("Enter the user's name: ")),
+                                str(input("nnter the user's surname: ")),
+                                str(input("Enter the user's title: ")),
+                                str(input("Enter the user's office: ")),
+                                str(input("Enter the user's email: ")),
+                            )
+
+                            dbcursor.execute(f"INSERT INTO ADMIN VALUES (\'{new_user.WIT_ID}\', \'{new_user.name}\', \'{new_user.surname}\', \'{new_user.title}\', \'{new_user.office}\', \'{new_user.email}\', \'{new_user.name}\')")
+                            database.commit()
+
+                        elif admin_choice == 2:
+                            new_user_id = int(input("Enter the user's ID: "))
+                            new_user_name = str(input("Enter the user's name: "))
+                            new_user_surname = str(input("nnter the user's surname: "))
+                            new_user_title = str(input("Enter the user's title: "))
+                            new_user_hireyear = int(input("Enter the user's hire year: "))
+                            new_user_dept = str(input("Enter the user's department: "))
+                            new_user_email = str(input("Enter the user's email: "))
+
+                            dbcursor.execute(f"INSERT INTO INSTRUCTOR VALUES (\'{new_user_id}\', \'{new_user_name}\', \'{new_user_surname}\', \'{new_user_title}\', \'{new_user_hireyear}\', \'{new_user_dept}\', \'{new_user_email}\', \'\', \'{new_user_name}\')")
+                            database.commit()
+
+                        elif admin_choice == 3:
+                            new_user_id = int(input("Enter the user's ID: "))
+                            new_user_name = str(input("Enter the user's name: "))
+                            new_user_surname = str(input("nnter the user's surname: "))
+                            new_user_gradyear = int(input("Enter the user's graduation year: "))
+                            new_user_major = str(input("Enter the user's major: "))
+                            new_user_email = str(input("Enter the user's email: "))
+
+                            dbcursor.execute(f"INSERT INTO STUDENT VALUES (\'{new_user_id}\', \'{new_user_name}\', \'{new_user_surname}\', \'{new_user_gradyear}\', \'{new_user_major}\', \'{new_user_email}\', \'\', \'{new_user_name}\')")
+                            database.commit()
+
+                    elif admin_choice == 2:
+                        admin_choice = str(input("Enter the id of the user to remove: "))
+
+                        dbcursor.execute(f"DELETE FROM ADMIN WHERE ID = {admin_choice}")
+                        dbcursor.execute(f"DELETE FROM STUDENT WHERE ID = {admin_choice}")
+                        dbcursor.execute(f"DELETE FROM INSTRUCTOR WHERE ID = {admin_choice}")
+                        database.commit()
+                elif admin_choice == 6:
+                    admin_choice = int(input("\n1- Link a course\n2- Unlink a course\n"))
+                    if admin_choice == 1:
+                        admin_choice = str(input("\nEnter the ID of the instructor or student: "))
+                        selected_user = None
+                        search_result = search_students("id", admin_choice)
+
+                        if len(search_result) == 0:
+                            search_result = search_instructors("id", admin_choice)
+                        if len(search_result) == 0:
+                            print("\nThat user is not in the database.\n")
+                        else:
+                            selected_user = search_result[0]
+                            print(selected_user)
+                            display_courses(selected_user.courses)
+                            admin_choice = str(input("\nEnter the ID of the course to add: "))
+                            search_result = search_courses("id", admin_choice)
+                            if len(search_result) > 0:
+                                course = search_result[0]
+                                selected_user.add_course(course)
+                            else:
+                                print("\nThat course is not in the database.\n")
+                    elif admin_choice == 2:
+                        admin_choice = str(input("\nEnter the ID of the instructor or student: "))
+                        selected_user = None
+                        search_result = search_students("id", admin_choice)
+
+                        if len(search_result) == 0:
+                            search_result = search_instructors("id", admin_choice)
+                        if len(search_result) == 0:
+                            print("\nThat user is not in the database.\n")
+                        else:
+                            selected_user = search_result[0]
+                            print(selected_user)
+                            display_courses(selected_user.courses)
+                            admin_choice = str(input("\nEnter the ID of the course to remove: "))
+                            search_result = search_courses("id", admin_choice)
+                            if len(search_result) > 0:
+                                course = search_result[0]
+                                selected_user.remove_course(course)
+                            else:
+                                print("\nThat course is not in the database.\n")
                 else:
                     print("Please choose from one of the displayed options\n")
         elif user_type == "instructor":
