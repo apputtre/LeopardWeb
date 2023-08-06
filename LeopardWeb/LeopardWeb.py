@@ -483,7 +483,7 @@ if __name__ == "__main__":
         elif user_type == "instructor":
             print("---------Instructor Options---------\n\n")
 
-            user = Instructor(username)
+            user = Instructor(username) 
 
             while user_type != "":
                 print("Choose one of the following options:\n")
