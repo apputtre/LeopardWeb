@@ -352,7 +352,7 @@ def search_students(search_criterion: str, value: str) -> list:
 
 
     return search_matches
-
+  
 
 def display_courses(to_display = None):
     dbcursor = database.cursor()
